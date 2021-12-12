@@ -1,0 +1,9 @@
+
+---Start of Run---
+Expert e6 added to p1. e6 is now on duty at:
+{mk_token("Monday day"), mk_token("Monday night"), mk_token("Tuesday night")}
+Expert e6 removed from p1. e6 is now on duty at:
+{mk_token("Monday night"), mk_token("Tuesday night")}
+Plant state:
+============
+mk_Plant({mk_token("Monday day") |-> {mk_Expert(mk_token("e1"), {<Elec>}), mk_Expert(mk_token("e5"), {<Bio>, <Chem>}), mk_Expert(mk_token("e7"), {<Elec>, <Mech>})}, mk_token("Monday night") |-> {mk_Expert(mk_token("e6"), {<Bio>, <Chem>, <Elec>, <Mech>})}, mk_token("Tuesday day") |-> {mk_Expert(mk_token("e1"), {<Elec>}), mk_Expert(mk_token("e3"), {<Bio>, <Chem>, <Elec>}), mk_Expert(mk_token("e8"), {<Bio>, <Mech>})}, mk_token("Tuesday night") |-> {mk_Expert(mk_token("e6"), {<Bio>, <Chem>, <Elec>, <Mech>})}}, {mk_Alarm("Biological attack", <Bio>), mk_Alarm("CO2 detected", <Chem>), mk_Alarm("Power supply missing", <Elec>), mk_Alarm("Tank overflow", <Mech>)})

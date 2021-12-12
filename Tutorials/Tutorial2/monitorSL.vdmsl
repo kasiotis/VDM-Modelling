@@ -1,0 +1,94 @@
+-- A temperature monitor
+-- Adapted from Fitzgerald Larsen Chapter 4 (Logic)
+
+-- Monitor test data
+-- enter test values from Tutorial 2 here
+values
+
+t1: TempRead = [200,300,450,300,200];
+t2: TempRead = [200,100,200,250,210];
+t3: TempRead = [500,410,410,450,390];
+t4: TempRead = [500,480,460,450,440];
+t5: TempRead = [100,200,300,400,500];
+t6: TempRead = [400,300,450,300,500];
+
+types
+
+  TempRead = seq of int
+  inv temp == len temp = 5
+
+functions
+
+-- builds a set of all monitor ids whose readings are rising
+
+	AllRising: MonitorMap -> set of monitorId
+	AllRising(monitors) == { m | m in set dom monitors & Rising(monitors(m))};
+-- result of AllRising is {mk_token("m2"), mk_token("m5"), mk_token("m6")}
+
+-- a reading is OverLimit but not ContOverLimit, therefore it is in the DangerZone
+
+	DangerZone: TempRead -> bool
+	DangerZone(temp) == ContOverLimit(temp)=false and OverLimit(temp)=true;
+
+-- a reading in the sample is strictly less than the previous
+
+	Falling: TempRead -> bool
+	Falling(temp) == 
+		forall i in set {1,2,3,4} & temp(i) > temp(i+1);
+
+-- the last reading in a sample is greater than the first
+
+  Rising: TempRead -> bool
+  Rising(temp) ==
+   temp(1) < temp(5);
+
+-- there is a reading in excess of 400 degrees
+
+  OverLimit: TempRead -> bool
+  OverLimit(temp) ==
+    exists i in set inds temp & temp(i) > maxValue;
+
+-- all readings in a sample exceed 400 degrees
+
+  ContOverLimit: TempRead -> bool
+  ContOverLimit(temp) ==
+    forall i in set inds temp & temp(i) > maxValue;
+
+-- detecting whether a reactor can be considered safe
+
+  Safe: TempRead -> bool
+  Safe(temp) ==
+    temp(3) > maxValue => temp(5) < maxValue;
+
+
+types
+
+	monitorId = token;
+
+	MonitorMap = map monitorId to TempRead;
+
+values
+	maxValue: nat = 400;
+
+	m1: monitorId = mk_token("m1");
+	m2: monitorId = mk_token("m2");
+	m3: monitorId = mk_token("m3");
+	m4: monitorId = mk_token("m4");
+	m5: monitorId = mk_token("m5");
+	m6: monitorId = mk_token("m6");
+
+	state Monitors of
+		mmap : MonitorMap
+		init m ==
+			m = mk_Monitors({m1 |-> t1, m2 |-> t2, m3 |-> t3,
+												m4 |-> t4, m5 |-> t5, m6 |-> t6})
+end;
+
+
+
+
+
+
+
+
+ 

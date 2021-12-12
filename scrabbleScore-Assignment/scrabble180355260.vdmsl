@@ -1,0 +1,91 @@
+-- CSC2021 Coursework Semester 2 2019
+-- Name: Antreas Kasiotis
+-- StdNo: 180355260
+
+-- Fill in above lines before submission.
+
+-- 
+
+
+types
+
+Tile = char
+inv t == t in set tileSet;
+Word = seq of Tile;
+Dictionary = set of Word;
+LetterMap = map char to nat;
+Player = token;
+ScoreMap = map Player to nat;
+
+state Scorer of
+thePoints: LetterMap -- points scored for each tile
+theTiles: LetterMap -- initial distribution of tiles 
+theWords: Dictionary
+theScore: ScoreMap -- numeric score recorded for each player
+
+inv mk_Scorer(thePoints,theTiles,theWords, theScore) ==
+	dom thePoints = tileSet and 
+	dom theTiles = tileSet
+	and theWords <> {} and 
+	dom theScore = {}
+init s == s = mk_Scorer( pointsMap, tilesLeft, smallWords, {|->} ) end;
+
+
+functions
+
+-- takes a word and a map giving the points for each letter (or blank)
+-- in the word, and return the total points score for the word
+GetWordScore: Word * LetterMap -> nat
+	GetWordScore(word,points) == 
+		if word = [] then 0
+		else points(hd word) + GetWordScore(tl word, points)
+	measure len word;
+	
+-- given a tile (letter or blank) and a word, returns a count of the
+-- number of times that tile appears in the word
+Occurrences: Tile * Word -> nat
+Occurrences(tile,word) == len[word(i) | i in set inds word & word(i) = tile];
+
+-- take a word and map giving the number of tiles available of each
+-- letter (e.g. 2 blanks, 12 'e' etc), and return true if there are
+-- enough tiles to form the word
+EnoughTiles: Word * LetterMap -> bool
+	EnoughTiles(word, tiles) == 
+	forall i in seq word & tiles(i) >= Occurrences(i, word);
+
+-- checks whether a word is playable by taking input word and
+-- dictionary and returns true if there is a word in the dictionary
+-- which has either all the same letters as the input word, or 
+-- any other letter where the input word has a blank.
+ValidWord: Word * Dictionary -> bool
+ValidWord(word, dictionary) == word in set dictionary or
+	BLANK in set elems(word) and
+	forall i in set dictionary &
+	len word = len i and
+	elems(word) \ elems i = {'_'};
+ 
+operations
+
+-- add a new player to the state variable above, setting their score to 0.
+AddPlayer: Player ==> ()
+	AddPlayer(Player) == 
+	theScore := theScore munion {Player |-> 0};
+
+-- Operation ScoreWord to calculate the score for a given word if
+-- there are enough tiles to form the word, and if the word is 
+-- valid according to the dictionary
+ScoreWord: Player * Word ==> ()
+ScoreWord(player, word) ==
+	(theScore := theScore ++ {player |-> GetWordScore(word, thePoints)};
+	RemoveTiles(word))
+-- precondition of these two functions being true
+pre EnoughTiles(word,theTiles) and ValidWord(word, theWords);
+
+-- The tiles used in the word are then to be removed 
+-- from the theTiles state variable
+RemoveTiles: Word ==> ()
+RemoveTiles(word) ==
+		theTiles := theTiles ++
+			{ t |-> theTiles(t) - Occurrences (t, word) 
+			| t in set dom theTiles
+			& t in set elems word };
